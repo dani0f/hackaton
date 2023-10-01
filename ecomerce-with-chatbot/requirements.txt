@@ -1,0 +1,8 @@
+langchain
+openai
+redis
+numpy
+pandas
+gdown
+python-dotenv
+tiktoken
