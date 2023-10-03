@@ -63,7 +63,7 @@ class Agents:
 
     def teacher(self, input_user):
         messages = [
-            SystemMessage(content=f"You are a teacher for a child with name {self.session_history.user}, {self.session_history.age} years old, you have to respond with a {self.session_history.user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic that can be answered through multiple choice with only 3 options with numbers 1, 2 and 3. Always talk in spanish."),
+            SystemMessage(content=f"You are a teacher for a child with name {self.session_history.user}, {self.session_history.age} years old, you have to respond with a {self.session_history.user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic you explained that can be answered through multiple choice with only 3 options with numbers 1, 2 and 3. Always talk in spanish."),
         ]
         messages.append(
             HumanMessage(content=input_user)
