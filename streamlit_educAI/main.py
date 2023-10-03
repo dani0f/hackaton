@@ -21,6 +21,7 @@ load_dotenv()
 # --- Global Variables
 st.session = SessionHistoryUser()
 chat_history = st.empty()  # Este es para llenar el text-area
+radio_selector = st.empty() # Este es para llenar el radio
 
 # --- Métodos ---
 def init_message(user_name, user_age, user_type_learning):
@@ -36,8 +37,13 @@ def showAllMessages(messages):
         elif isinstance(msg, AIMessage):
             chat_history_content += f"👨‍🏫 Bot: {msg.content}\n\n"
     chat_history.text_area("History",chat_history_content, height=400)
-
+    st.balloons()
     #st.radio("responde", options=["1","2","3"])
+
+def showRadioSelection():
+    local_session = st.session
+    return radio_selector.radio(label=local_session.label, options=["1", "2", "3"], index=local_session.selection_option)
+
 
 def get_user_info(sidebar, local_session):
     user_name = sidebar.text_input("Name", value=local_session.user, on_change=local_session.resetMessages())
@@ -61,29 +67,14 @@ def main():
         init_message(user_name, user_age, user_type_learning)
 
     st.text(user_name + str(user_age) + user_type_learning)
-    input_user = st.chat_input("write your question")
+    input_user = st.chat_input("Escribe tu preguta o mensaje aquí:")
     if input_user:
         local_session.messages.append(HumanMessage(content=input_user))
-        with st.spinner("Thinking..."):
+        with st.spinner("Pensando..."):
             response, render_radio = agent.chain(input_user) # Render raido es un booleano
-
-            if render_radio:
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.text("Selecciona la opción que creas correcta")
-                with col2:
-                    genre = st.radio(
-                        "What's your favorite movie genre",
-                        [":rainbow[Comedy]", "***Drama***", "Documentary :movie_camera:"],
-                    )
-
-                    st.write("You selected:", genre)
-                    
-                    if st.button("Confirmar"):
-                        st.balloons()
-
-        
+            print(render_radio)
             local_session.messages.append(AIMessage(content=response))
+    showRadioSelection()
     showAllMessages(local_session.getMessages())
 
 if __name__ == "__main__":

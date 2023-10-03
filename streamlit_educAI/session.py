@@ -5,7 +5,9 @@ class SessionHistoryUser:
         self.user : str = user_name
         self.user_type_learning : int = user_type_learning
         self.age : int = user_age
+        self.label : str = ""
         self.messages : list = []
+        self.selection_option : int = 0
 
     def getMessages(self):
         return self.messages
