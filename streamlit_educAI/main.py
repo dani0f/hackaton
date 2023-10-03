@@ -36,7 +36,7 @@ def showAllMessages(messages):
         elif isinstance(msg, AIMessage):
             chat_history_content += f"👨‍🏫 Bot: {msg.content}\n\n"
     chat_history.text_area("History",chat_history_content, height=400)
-    st.balloons()
+
     #st.radio("responde", options=["1","2","3"])
 
 def get_user_info(sidebar, local_session):
@@ -66,7 +66,23 @@ def main():
         local_session.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
             response, render_radio = agent.chain(input_user) # Render raido es un booleano
-            print(render_radio)
+
+            if render_radio:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.text("Selecciona la opción que creas correcta")
+                with col2:
+                    genre = st.radio(
+                        "What's your favorite movie genre",
+                        [":rainbow[Comedy]", "***Drama***", "Documentary :movie_camera:"],
+                    )
+
+                    st.write("You selected:", genre)
+                    
+                    if st.button("Confirmar"):
+                        st.balloons()
+
+        
             local_session.messages.append(AIMessage(content=response))
     showAllMessages(local_session.getMessages())
 
