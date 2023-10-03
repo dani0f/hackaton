@@ -4,7 +4,7 @@ import os
 
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
-
+from agente import clasificador
 from session import SessionHistoryUser
 
 st.set_page_config(
@@ -35,13 +35,7 @@ def showAllMessages(messages):
 
 def main():        
 
-    load_dotenv() 
-    
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if openai_api_key is None or openai_api_key == "":
-        st.warning("OpenAI API key is not set. Please set the API key.")
-        
-    chat = ChatOpenAI(temperature=0)
+
 
     local_session = st.session
 
@@ -65,8 +59,9 @@ def main():
     if input_user:
         st.session_state.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
-            response = chat(st.session_state.messages)  
-            st.session_state.messages.append(AIMessage(content=response.content))     
+            response = clasificador(input_user)  
+            
+            st.session_state.messages.append(AIMessage(content=response))     
     showAllMessages(st.session_state.get("messages", []))
 
 
