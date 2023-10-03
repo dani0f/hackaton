@@ -5,6 +5,8 @@ import os
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
+from session import SessionHistoryUser
+
 st.set_page_config(
     page_title="educAI",
     page_icon="📚"
@@ -12,7 +14,7 @@ st.set_page_config(
 st.title("educAI")
 
 chat_history = st.empty()  # Define chat_history as a global variable
-
+st.session = SessionHistoryUser()
 
 def init_message(user_name, user_age, user_type_learning):
     st.session_state.messages = [
@@ -33,27 +35,27 @@ def showAllMessages(messages):
 
 def main():        
 
+    load_dotenv() 
+    
     openai_api_key = os.getenv("OPENAI_API_KEY")
     if openai_api_key is None or openai_api_key == "":
         st.warning("OpenAI API key is not set. Please set the API key.")
         
     chat = ChatOpenAI(temperature=0)
 
-    load_dotenv() 
-    
+    local_session = st.session
+
     if "user" not in st.session_state:
-        st.session_state.user = {"name": "daniela", "age": 7, "user_type_learning": 0}
+        local_session.resetMessages()
     
     with st.sidebar:
         st.title("User info")
-        user_name = st.text_input("Name", value=st.session_state.user["name"])
-        user_age = st.number_input("Age",step=1,min_value=4, max_value=99, value=st.session_state.user["age"])
+        user_name = st.text_input("Name", value=local_session.user)
+        user_age = st.number_input("Age", value=local_session.age)
         st.title("Customize learning")
         user_type_learning= st.selectbox(
         'Who would you like to be your teacher',
-        ('Cuentos', 'Logico', 'Rimas'), index=st.session_state.user["user_type_learning"])
-
-
+        ('Cuentos', 'Logico', 'Rimas'), index=local_session.user_type_learning)
            
     if "messages" not in st.session_state:
         init_message(user_name, user_age, user_type_learning)
