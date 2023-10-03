@@ -58,7 +58,7 @@ def clasificador(input_user):
 
 def teacher(input_user, user_name, user_age, user_type_learning):
     messages = [
-        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic that can be answered through multiple choice. Always talk in spanish."),
+        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic that can be answered through a multiple choice at the end. Always talk in spanish."),
     ]
     messages.append(
         HumanMessage(content=input_user)
@@ -66,4 +66,10 @@ def teacher(input_user, user_name, user_age, user_type_learning):
 
     res = llm(messages)
     return res.content
+
+def analyzer(input_user, input_ai):
+    messages = [
+        SystemMessage(content="Your job is to analyze this AI responseAlways talk in spanish."),
+    ]
+
     
