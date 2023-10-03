@@ -1,28 +1,34 @@
+# --- Imports ---
 import streamlit as st
 from dotenv import load_dotenv
-import os
 
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
-from agente import clasificador
+from session import SessionHistoryUser
+from learning_types import get_type_learning
 
+import os
+
+# --- Streamlit ---
 st.set_page_config(
     page_title="educAI",
     page_icon="📚"
 )
-
 st.title("educAI")
-chat_history = st.empty()  # Define chat_history as a global variable
 
-with st.sidebar:
-    st.title("User info")
-    user_name = st.text_input("Name")
-    user_age = st.number_input("Age",step=1,min_value=4, max_value=99, value=7)
-    st.title("Customize learning")
-    user_type_learning= st.selectbox(
-    'Who would you like to be your teacher',
-    ('Cuentos', 'Logico', 'Rimas'))
+# --- Load environment variables ---
+load_dotenv() 
+
+# --- Global Variables
+st.session = SessionHistoryUser()
+chat_history = st.empty()  # Este es para llenar el text-area
+
+# --- Métodos ---
+def init_message(user_name, user_age, user_type_learning):
+    st.session.messages = [
+        SystemMessage(content=f"You are a teacher of a {user_age} year child with name {user_name}, you have to respond with a {get_type_learning(user_type_learning)}"),
+    ]
 
 def showAllMessages(messages):
     chat_history_content = ""
@@ -33,108 +39,42 @@ def showAllMessages(messages):
             chat_history_content += f"👨‍🏫 Bot: {msg.content}\n\n"
     chat_history.text_area("History",chat_history_content, height=400)
     st.balloons()
-    st.radio("responde", options=["1","2","3"])
+    #st.radio("responde", options=["1","2","3"])
 
- 
-# def bot_message(response):
-#     content = f"{response.content}\n\nResponde el siguiente quiz:\n\n"
-
-#     # Use Markdown to display the question
-#     content += "¿Cómo se forman las nubes?\n\n"
-
-#     # Use radio buttons to provide options
-#     options = ["uno", "dos", "tres"]
-#     correct = "uno"
-#     return { 'options' : options , 'correct_answer' : correct}
-    # if radioMessage:
-    #     # Include the selected option in the content
-    #     option_selected = f"Respuesta seleccionada: {radioMessage}"
-    #     st.session_state.messages.append(AIMessage(content=content, type="ai"))
-    #     st.session_state.messages.append(HumanMessage(content=option_selected, type="none"))
+def get_user_info(sidebar, local_session):
+    user_name = sidebar.text_input("Name", value=local_session.user, on_change=local_session.resetMessages())
+    user_age = sidebar.number_input("Age", value=local_session.age,  on_change=local_session.resetMessages())
+    user_type_learning= sidebar.selectbox(
+    '¿Quién te gustaría que fuese tu profesor?',
+    ('Cuentos', 'Logico', 'Rimas'), index=local_session.user_type_learning, on_change=local_session.resetMessages())
+    return user_name, user_age, user_type_learning
 
 
-def init_message():
-    st.session_state.messages = [
-        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning}"),
-    ]
+# --- Main ---
 
-def get_text_area(content):
-    txt = st.text_area(
-        "Chat history",
-        content,
-        key="text_area_key",  # Add a unique key here
-        height=200
-    )
-    return txt
-
-
-def get_radio():
-    radio = st.radio("Click the correct answer", ["1", "2", "3"]) 
-    return radio
-
-def get_input_user():
-    input_user = st.chat_input("write your question")
-    return input_user
-
-
-
-def main():        
-    input_user = get_input_user()
-    load_dotenv()    
+def main():       
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if openai_api_key is None or openai_api_key == "":
+        st.warning("OpenAI API key is not set. Please set the API key.")
         
+    chat = ChatOpenAI(temperature=0)
 
-    if "messages" not in st.session_state:
-        init_message()
+    local_session = st.session
 
+    with st.sidebar:
+        user_name, user_age, user_type_learning = get_user_info(st.sidebar, local_session)
+
+    if  len(local_session.messages) == 0:
+        init_message(user_name, user_age, user_type_learning)
+
+    st.text(user_name + str(user_age) + user_type_learning)
+    input_user = st.chat_input("write your question")
     if input_user:
-        st.session_state.messages.append(HumanMessage(content=input_user))
+        local_session.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
-            response = clasificador(input_user) 
-            st.session_state.messages.append(AIMessage(content=response))     
-            #radio = get_radio()
-
-    showAllMessages(st.session_state.get("messages", []))
-
+            response = chat(local_session.messages)  
+            local_session.messages.append(AIMessage(content=response.content))     
+    showAllMessages(local_session.getMessages())
 
 if __name__ == "__main__":
     main()
-
-
-
-
-    
-
-    # load_dotenv()
-    # openai_api_key = os.getenv("OPENAI_API_KEY")
-
-    # if openai_api_key is None or openai_api_key == "":
-    #     st.warning("OpenAI API key is not set. Please set the API key.")
-    #     return
-
-
-    # chat = ChatOpenAI(temperature=0)
-
-    # if "messages" not in st.session_state:
-    #     init_message()
-
-
-
-    # user_input = st.text_input("Your message:", key="user_input")
-
-    # if user_input:
-    #     st.session_state.messages.append(HumanMessage(content=user_input))
-    #     with st.spinner("Thinking..."):
-    #         response = chat(st.session_state.messages)
-    #     #First bot response
-    #     radio_config = bot_message(response)
-        
-    #     with st.radio(label = "hola", options = radio_config["options"]):
-    #         st.text("response")
-
-
-    # Display all chat messages
-    #showAllMessages(st.session_state.get("messages", []))
-
-
-    
-
