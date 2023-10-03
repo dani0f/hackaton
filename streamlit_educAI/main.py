@@ -2,13 +2,11 @@
 import streamlit as st
 from dotenv import load_dotenv
 
-from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
 from session import SessionHistoryUser
+from agents import Agents
 from learning_types import get_type_learning
-
-import os
 
 # --- Streamlit ---
 st.set_page_config(
@@ -53,13 +51,8 @@ def get_user_info(sidebar, local_session):
 # --- Main ---
 
 def main():       
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if openai_api_key is None or openai_api_key == "":
-        st.warning("OpenAI API key is not set. Please set the API key.")
-        
-    chat = ChatOpenAI(temperature=0)
-
     local_session = st.session
+    agent = Agents(local_session)
 
     with st.sidebar:
         user_name, user_age, user_type_learning = get_user_info(st.sidebar, local_session)
@@ -72,8 +65,8 @@ def main():
     if input_user:
         local_session.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
-            response = chat(local_session.messages)  
-            local_session.messages.append(AIMessage(content=response.content))     
+            response = agent.chain(input_user)
+            local_session.messages.append(AIMessage(content=response))
     showAllMessages(local_session.getMessages())
 
 if __name__ == "__main__":
