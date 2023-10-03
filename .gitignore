@@ -3,3 +3,5 @@ dataset
 documents
 env
 model
+.env
+venv/
