@@ -1,5 +1,3 @@
-import uuid
-import hashlib
 
 ## Esta clase sirve para guardar el historial de mensajes de cada usuario
 class SessionHistoryUser:
