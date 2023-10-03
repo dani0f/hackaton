@@ -12,6 +12,7 @@ from langchain.schema import (
     AIMessage,
 )
 import streamlit as st
+import random
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -35,6 +36,7 @@ def identificador(input_user):
         flag = int(res.content[0])
     except:
         flag = 0
+    print("Identify")
     print(flag)
     return flag
 
@@ -67,9 +69,25 @@ def teacher(input_user, user_name, user_age, user_type_learning):
     res = llm(messages)
     return res.content
 
-def analyzer(input_user, input_ai):
+def analyzer(input_ai, choice_user):
     messages = [
-        SystemMessage(content="Your job is to analyze this AI responseAlways talk in spanish."),
+        SystemMessage(content=f"Your job is to analyze this AI response with a multiple choice question at the end. You must figure out which choice is the correct one and compare it to the number the user chose, which is {choice_user}. If the answer is right only return the number 1, else return 0."),
     ]
+    messages.append(
+        HumanMessage(choice_user),
+        AIMessage(content=input_ai)
+    )
 
+    res = llm(messages)
+    try:
+        flag = int(res.content[0])
+    except:
+        flag = 0
+    print("Analyze")
+    print(flag)
+    return flag
+
+def ajuste():   
+    temperature=max(0.1,temperature*random.uniform(0.85,1))
+    return temperature
     
