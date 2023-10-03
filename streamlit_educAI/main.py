@@ -7,6 +7,8 @@ from langchain.schema import SystemMessage, HumanMessage, AIMessage
 from session import SessionHistoryUser
 from learning_types import get_type_learning
 
+from agente import clasificador
+
 import os
 
 # --- Streamlit ---
@@ -52,11 +54,6 @@ def get_user_info(sidebar, local_session):
 # --- Main ---
 
 def main():       
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if openai_api_key is None or openai_api_key == "":
-        st.warning("OpenAI API key is not set. Please set the API key.")
-        
-    chat = ChatOpenAI(temperature=0)
 
     local_session = st.session
 
@@ -71,7 +68,7 @@ def main():
     if input_user:
         local_session.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
-            response = chat(local_session.messages)  
+            response = clasificador(input_user)
             local_session.messages.append(AIMessage(content=response.content))     
     showAllMessages(local_session.getMessages())
 
