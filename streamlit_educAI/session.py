@@ -6,7 +6,7 @@ class SessionHistoryUser:
         self.user_type_learning : int = user_type_learning
         self.age : int = user_age
         self.label : str = ""
-        self.messages : list = []
+        self.messages = []
         self.selection_option : int = 0
 
     def getMessages(self):
@@ -15,6 +15,8 @@ class SessionHistoryUser:
     def addMessage(self, message):
         try:
             self.messages.append(message)
+            print(f"adding message: {message}")
+            print(self.messages)
             return True
         except:
             print("Error adding message")

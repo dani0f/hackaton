@@ -63,17 +63,17 @@ def main():
     with st.sidebar:
         user_name, user_age, user_type_learning = get_user_info(st.sidebar, local_session)
 
-    if  len(local_session.messages) == 0:
+    print(local_session.getMessages())
+    if len(local_session.messages) == 0:
         init_message(user_name, user_age, user_type_learning)
 
     st.text(user_name + str(user_age) + user_type_learning)
     input_user = st.chat_input("Escribe tu preguta o mensaje aquí:")
     if input_user:
-        local_session.messages.append(HumanMessage(content=input_user))
+        local_session.addMessage(HumanMessage(content=input_user))
         with st.spinner("Pensando..."):
             response, render_radio = agent.chain(input_user) # Render raido es un booleano
-            print(render_radio)
-            local_session.messages.append(AIMessage(content=response))
+            local_session.addMessage(AIMessage(content=response))
     showRadioSelection()
     showAllMessages(local_session.getMessages())
 
