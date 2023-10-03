@@ -5,6 +5,8 @@ import os
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import SystemMessage, HumanMessage, AIMessage
 
+from agente import clasificador
+
 st.set_page_config(
     page_title="educAI",
     page_icon="📚"
@@ -77,17 +79,9 @@ def get_input_user():
 
 
 def main():        
-
-
-
-
     input_user = get_input_user()
     load_dotenv()    
-    openai_api_key = os.getenv("OPENAI_API_KEY")
-    if openai_api_key is None or openai_api_key == "":
-        st.warning("OpenAI API key is not set. Please set the API key.")
         
-    chat = ChatOpenAI(temperature=0)
 
     if "messages" not in st.session_state:
         init_message()
@@ -95,8 +89,8 @@ def main():
     if input_user:
         st.session_state.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
-            response = chat(st.session_state.messages)  
-            st.session_state.messages.append(AIMessage(content=response.content))     
+            response = clasificador(input_user) 
+            st.session_state.messages.append(AIMessage(content=response))     
             #radio = get_radio()
 
     showAllMessages(st.session_state.get("messages", []))
