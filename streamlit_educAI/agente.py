@@ -58,7 +58,7 @@ def clasificador(input_user):
 
 def teacher(input_user, user_name, user_age, user_type_learning):
     messages = [
-        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic. Always talk in spanish."),
+        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic that can be answered through multiple choice. Always talk in spanish."),
     ]
     messages.append(
         HumanMessage(content=input_user)
