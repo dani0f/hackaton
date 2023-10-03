@@ -65,7 +65,8 @@ def main():
     if input_user:
         local_session.messages.append(HumanMessage(content=input_user))
         with st.spinner("Thinking..."):
-            response = agent.chain(input_user)
+            response, render_radio = agent.chain(input_user) # Render raido es un booleano
+            print(render_radio)
             local_session.messages.append(AIMessage(content=response))
     showAllMessages(local_session.getMessages())
 

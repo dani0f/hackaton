@@ -3,6 +3,7 @@ from langchain.chat_models import AzureChatOpenAI
 from langchain.schema import (
     SystemMessage,
     HumanMessage,
+    AIMessage,
 )
 from dotenv import load_dotenv
 import random
@@ -19,9 +20,9 @@ class Agents:
         
     def chain(self, input_user):
         print(f"Input user: {input_user} \n Nombre: {self.session_history.user} \n Age {self.session_history.age}" )
-        return self.clasificador(input_user)
+        return self.classifier(input_user)
         
-    def clasificador(self, input_user):
+    def classifier(self, input_user):
         messages = [
             SystemMessage(content="You are ExpertGPT Model that can answer questions about the world or any topic in particular in a friendly and pedagogical way. "+
                         "You are in charge of talking to a user between the ages of 10 and 15 who is learning about any topic related to school and general knowledge. "+
@@ -30,14 +31,15 @@ class Agents:
         
         question = self.identifier(input_user)
         if question:
+            # Este caso hay que renderear el radio
             res = self.teacher(input_user)
-            return res
+            return res, True
         else:
             messages.append(
                 HumanMessage(content=input_user)
             )
             res = self.llm(messages)
-            return res.content
+            return res.content, False
         
     def identifier(self, input_user: str):
 
@@ -70,16 +72,19 @@ class Agents:
         res = self.llm(messages)
         return res.content
     
-    def analyzer(input_ai, choice_user):
+    def analyzer(self, input_ai, choice_user):
         messages = [
             SystemMessage(content=f"Your job is to analyze this AI response with a multiple choice question at the end. You must figure out which choice is the correct one and compare it to the number the user chose, which is {choice_user}. If the answer is right only return the number 1, else return 0."),
         ]
         messages.append(
-            HumanMessage(choice_user),
-            AIMessage(content=input_ai)
+            HumanMessage(choice_user)
         )
 
-        res = llm(messages)
+        messages.append(
+            AIMessage(input_ai)
+        )
+
+        res = self.llm(messages)
         try:
             flag = int(res.content[0])
         except:
