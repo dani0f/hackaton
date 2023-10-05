@@ -12,14 +12,17 @@ from langchain.schema import (
     AIMessage,
 )
 import streamlit as st
+import random
 
 from dotenv import load_dotenv
 load_dotenv()
 
+temperatura = 0.6
+
 llm=AzureChatOpenAI(
     deployment_name="educai_chat35", #educai_chat35_16k
     model_name="gpt-35-turbo", #gpt-35-turbo-16k
-    temperature=0.5,
+    temperature= temperatura,
 )
 
 def identificador(input_user):
@@ -58,12 +61,34 @@ def clasificador(input_user):
 
 def teacher(input_user, user_name, user_age, user_type_learning):
     messages = [
-        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic that can be answered through multiple choice. Always talk in spanish."),
+        SystemMessage(content=f"You are a teacher of a 12 year child with name ${user_name}, ${user_age} years old, you have to respond with a ${user_type_learning} way of teaching. Afterwards, you have to ask the user a question about the topic that can be answered through multiple choice with only 3 options with numbers 1,2 and 3. Always talk in spanish."),
     ]
     messages.append(
         HumanMessage(content=input_user)
     )
 
     res = llm(messages)
+    ola = analyzer(res.content, "1")
+    print(ola)
     return res.content
     
+def analyzer(input_ai, choice_user):
+    messages = [
+        SystemMessage(content="Read the question and return the number of the correct answer as the first character of the response."),
+    ]
+    messages.append(
+        HumanMessage(content=input_ai)
+    )
+
+    res = llm(messages)
+    return learning(res.content[0], choice_user)
+
+def learning(correct_option, choice_user):
+    if correct_option == choice_user:
+        return 1
+    else:
+        return 0
+
+def ajuste_temp(temperatura):
+    temperature=max(0.1,temperatura*random.uniform(0.85,1))
+    return temperature
